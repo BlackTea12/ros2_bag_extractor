@@ -1,9 +1,9 @@
 from nav_msgs.msg import Path
 # from nav_msgs.msg import Odometry
-# from geometry_msgs.msg import PoseStamped, Pose, PoseWithCovariance, Twist, PoseWithCovarianceStamped
+from geometry_msgs.msg import PoseStamped, Pose, PoseWithCovariance, Twist, PoseWithCovarianceStamped
 from visualization_msgs.msg import Marker, MarkerArray
 from math import sqrt, pow
-
+import ros2_bag_extractor.util.mathematics as math_helper
 '''
 @brief Selecting data with user needs
 '''
@@ -28,6 +28,8 @@ class ObjectType():
       return self._get_PathDiffList(self.org)
     elif data_type == "MarkerArray":
       return self._get_VisMarkerArrayPoseList(self.org)
+    elif data_type == "PoseStamped":
+      return self._get_PoseStampedList(self.org)
     else:
       print(f"no matching type for {data_type}")
     return
@@ -68,6 +70,16 @@ class ObjectType():
   
   def _get_marker_pose(self, marker:Marker):
     return marker.pose
+  
+  def _get_PoseStampedList(self, data:list):
+    result = []
+    for time, posestamp in data:
+      result.append((time, self._get_xydeg(posestamp)))
+    return result
+  
+  def _get_xydeg(self, pose:PoseStamped):
+    roll, pitch, yaw = math_helper.quaternion_to_euler(pose.pose.orientation)
+    return (pose.pose.position.x, pose.pose.position.y, yaw)
   
   def _get_speed_vector_size(self, vx, vy):
     '''

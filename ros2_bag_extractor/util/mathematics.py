@@ -1,7 +1,7 @@
 import math
 from geometry_msgs.msg import Quaternion
 
-def euler_to_quaternion(self, roll, pitch, yaw):
+def euler_to_quaternion(roll, pitch, yaw):
   '''
   @return geometry_msgs.msg Quaternion
   '''
@@ -11,7 +11,7 @@ def euler_to_quaternion(self, roll, pitch, yaw):
   qw = math.cos(roll/2) * math.cos(pitch/2) * math.cos(yaw/2) + math.sin(roll/2) * math.sin(pitch/2) * math.sin(yaw/2)
   return Quaternion(x=qx, y=qy, z=qz, w=qw)
 
-def quaternion_to_euler(self, q:Quaternion):
+def quaternion_to_euler(q:Quaternion):
   '''
   @return (roll, pitch, yaw)
   '''
