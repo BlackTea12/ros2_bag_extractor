@@ -16,7 +16,6 @@ class ObjectType():
     if self.org:
       self.timestamps = [t[0] for t in self.org]
       self.data = [t[1] for t in self.org]
-      print("data initialized!")
     else:
       print("data none initialized")
   
@@ -30,6 +29,8 @@ class ObjectType():
       return self._get_VisMarkerArrayPoseList(self.org)
     elif data_type == "PoseStamped":
       return self._get_PoseStampedList(self.org)
+    elif data_type == "PoseWithCovarianceStamped":
+      return self._get_PoseWithCovarianceStamped(self.org)
     else:
       print(f"no matching type for {data_type}")
     return
@@ -46,7 +47,7 @@ class ObjectType():
     return result
 
   def _isPathSame(self, path1:Path, path2:Path):
-    if len(path1) == len(path2):
+    if len(path1.poses) == len(path2.poses):
       if path1.poses[0].pose.position.x == path2.poses[0].pose.position.x \
         and path1.poses[0].pose.position.y == path2.poses[0].pose.position.y:
         return True
@@ -74,12 +75,22 @@ class ObjectType():
   def _get_PoseStampedList(self, data:list):
     result = []
     for time, posestamp in data:
-      result.append((time, self._get_xydeg(posestamp)))
+      result.append((time, self._ps_get_xydeg(posestamp)))
     return result
   
-  def _get_xydeg(self, pose:PoseStamped):
+  def _get_PoseWithCovarianceStamped(self, data:list):
+    result = []
+    for time, posestampcov in data:
+      result.append((time, self._pcs_get_xydeg(posestampcov)))
+    return result
+  
+  def _ps_get_xydeg(self, pose:PoseStamped):
     roll, pitch, yaw = math_helper.quaternion_to_euler(pose.pose.orientation)
     return (pose.pose.position.x, pose.pose.position.y, yaw)
+  
+  def _pcs_get_xydeg(self, pose:PoseWithCovarianceStamped):
+    roll, pitch, yaw = math_helper.quaternion_to_euler(pose.pose.pose.orientation)
+    return (pose.pose.pose.position.x, pose.pose.pose.position.y, yaw)
   
   def _get_speed_vector_size(self, vx, vy):
     '''
