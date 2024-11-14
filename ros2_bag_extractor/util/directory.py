@@ -1,8 +1,9 @@
 import os
-from datetime import datetime
 
 def get_rosbag_file(root_folder='rosbag', choose_rosbag=''):
   '''
+  @root_folder where to search
+  @choose_rosbag which rosbag2 to select
   @return db3 absolute path in string
   '''
   default_dir = os.path.join(os.path.expanduser('~'), root_folder)

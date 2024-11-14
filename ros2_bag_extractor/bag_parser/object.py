@@ -1,9 +1,11 @@
 from nav_msgs.msg import Path
-# from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseStamped, Pose, PoseWithCovariance, Twist, PoseWithCovarianceStamped
 from visualization_msgs.msg import Marker, MarkerArray
-from math import sqrt, pow
-import ros2_bag_extractor.util.mathematics as math_helper
+
+from ros2_bag_extractor.type.geometry_msgs import convertPoseStamped, convertPoseWithCovariance
+from ros2_bag_extractor.type.nav_msgs import convertPath
+
+AVAILABLE_DATA_TYPE = ["Path", "MarkerArray", "PoseStamped", "PoseWithCovarianceStamped"]
+
 '''
 @brief Selecting data with user needs
 '''
@@ -16,23 +18,26 @@ class ObjectType():
     if self.org:
       self.timestamps = [t[0] for t in self.org]
       self.data = [t[1] for t in self.org]
+      # print("splitting data and timestamp succeed!")
     else:
-      print("data none initialized")
+      print("\x1b[33;20mNo data to initialize!\x1b[0m")
   
   def get_data(self, data_type:str):
     '''
-    @data_type: what type is bounded with timestamp
+    @data_type: what type of the topic is
     '''
-    if data_type == "Path":
+    if data_type == AVAILABLE_DATA_TYPE[0]:
       return self._get_PathDiffList(self.org)
-    elif data_type == "MarkerArray":
+    elif data_type == AVAILABLE_DATA_TYPE[1]:
       return self._get_VisMarkerArrayPoseList(self.org)
-    elif data_type == "PoseStamped":
+    elif data_type == AVAILABLE_DATA_TYPE[2]:
       return self._get_PoseStampedList(self.org)
-    elif data_type == "PoseWithCovarianceStamped":
+    elif data_type == AVAILABLE_DATA_TYPE[3]:
       return self._get_PoseWithCovarianceStamped(self.org)
     else:
-      print(f"no matching type for {data_type}")
+      print(f"\x1b[31;20mno matching type for {data_type}...\x1b[0m")
+      print(f"available types are {AVAILABLE_DATA_TYPE}")
+
     return
   
   def _get_PathDiffList(self, data : list):
@@ -43,7 +48,7 @@ class ObjectType():
     result = [(data[0][0], data[0][1])]
     for time, path in data:
       if not self._isPathSame(path, result[-1][1]):
-        result.append((time, path))
+        result.append(convertPath(path, time))
     return result
 
   def _isPathSame(self, path1:Path, path2:Path):
@@ -52,6 +57,18 @@ class ObjectType():
         and path1.poses[0].pose.position.y == path2.poses[0].pose.position.y:
         return True
     return False
+  
+  def _get_PoseStampedList(self, data:list):
+    result = []
+    for time, posestamp in data:
+      result.append(convertPoseStamped(posestamp, time))
+    return result
+  
+  def _get_PoseWithCovarianceStamped(self, data:list):
+    result = []
+    for time, posestampcov in data:
+      result.append(convertPoseWithCovariance(posestampcov,time))
+    return result
 
   def _get_VisMarkerArrayPoseList(self, data : list):
     '''
@@ -72,28 +89,3 @@ class ObjectType():
   def _get_marker_pose(self, marker:Marker):
     return marker.pose
   
-  def _get_PoseStampedList(self, data:list):
-    result = []
-    for time, posestamp in data:
-      result.append((time, self._ps_get_xydeg(posestamp)))
-    return result
-  
-  def _get_PoseWithCovarianceStamped(self, data:list):
-    result = []
-    for time, posestampcov in data:
-      result.append((time, self._pcs_get_xydeg(posestampcov)))
-    return result
-  
-  def _ps_get_xydeg(self, pose:PoseStamped):
-    roll, pitch, yaw = math_helper.quaternion_to_euler(pose.pose.orientation)
-    return (pose.pose.position.x, pose.pose.position.y, yaw)
-  
-  def _pcs_get_xydeg(self, pose:PoseWithCovarianceStamped):
-    roll, pitch, yaw = math_helper.quaternion_to_euler(pose.pose.pose.orientation)
-    return (pose.pose.pose.position.x, pose.pose.pose.position.y, yaw)
-  
-  def _get_speed_vector_size(self, vx, vy):
-    '''
-    @brief returning speed absolute value
-    '''
-    return sqrt(pow(vx,2)+pow(vy,2))
