@@ -20,7 +20,7 @@ class ObjectType():
       self.data = [t[1] for t in self.org]
       # print("splitting data and timestamp succeed!")
     else:
-      print("\x1b[33;20mNo data to initialize!\x1b[0m")
+      print("\x1b[31;1mNo data to initialize!\x1b[0m")
   
   def get_data(self, data_type:str):
     '''
@@ -45,16 +45,18 @@ class ObjectType():
     @data: list of (timestamp, nav_msgs.msg Path)
     @brief: compares Path data and only save when it differs
     '''
-    result = [(data[0][0], data[0][1])]
+    result = [convertPath(data[0][1], data[0][0])]
+    if len(data) == 1:
+      return result
     for time, path in data:
-      if not self._isPathSame(path, result[-1][1]):
+      if not self._isPathSame(path, result[-1]):
         result.append(convertPath(path, time))
     return result
 
-  def _isPathSame(self, path1:Path, path2:Path):
+  def _isPathSame(self, path1:Path, path2):
     if len(path1.poses) == len(path2.poses):
-      if path1.poses[0].pose.position.x == path2.poses[0].pose.position.x \
-        and path1.poses[0].pose.position.y == path2.poses[0].pose.position.y:
+      if path1.poses[0].pose.position.x == path2.poses[0].x \
+        and path1.poses[0].pose.position.y == path2.poses[0].y:
         return True
     return False
   

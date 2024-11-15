@@ -20,3 +20,6 @@
     data_list = ObjectType(parsed_data.get_messages('/plan'))
     db_Path = data_list.get_data('Path')
 
+## Test code
+
+    ros2 run ros2_bag_extractor test
