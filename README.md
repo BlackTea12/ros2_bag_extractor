@@ -7,11 +7,9 @@
 </div>
 
 ## How to add ros2 messages to convert in python data type
-1. Add your python data type in the below file
+1. Add your python data type in the folder **'/type'**
 
-    /type
-
-2. In **/bag_parser/object.py**, add your function to connect with **/type**
+2. In **'/bag_parser/object.py'**, add your function to connect with **'/type'**
 
 
 ## How to use
