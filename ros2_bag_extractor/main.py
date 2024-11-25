@@ -1,4 +1,3 @@
-
 from ros2_bag_extractor.util import directory as dir
 from ros2_bag_extractor.bag_parser.parser import Bag2FileParser
 from ros2_bag_extractor.bag_parser.object import ObjectType

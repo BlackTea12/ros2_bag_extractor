@@ -11,6 +11,11 @@
 
 2. In **'/bag_parser/object.py'**, add your function to connect with **'/type'**
 
+3. After adding all function and types, please link with **'function_array.py'**.
+```
+# dictionary
+"message type": "function name"
+```
 
 ## How to use
 

@@ -1,5 +1,5 @@
 from math import sqrt, pow
-from geometry_msgs.msg import PoseWithCovarianceStamped
+from geometry_msgs.msg import PoseWithCovarianceStamped, Twist
 from ros2_bag_extractor.util.mathematics import quaternion_to_euler as q2e
 
 '''
@@ -12,6 +12,10 @@ def convertPoseStamped(p, time=0):
 
 def convertPoseWithCovariance(p:PoseWithCovarianceStamped, time=0):
   return convertPoseStamped(p.pose, time)
+
+def convertTwist(tw:Twist, time=0):
+  data = speed(tw.linear.x, tw.linear.y, tw.angular.z, time)
+  return data
 
 class pose:
   def __init__(self, pose_x, pose_y, pose_theta, time_nanoseconds=0):

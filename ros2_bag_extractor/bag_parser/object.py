@@ -1,10 +1,9 @@
 from nav_msgs.msg import Path
 from visualization_msgs.msg import Marker, MarkerArray
 
-from ros2_bag_extractor.type.geometry_msgs import convertPoseStamped, convertPoseWithCovariance
+from ros2_bag_extractor.type.geometry_msgs import convertPoseStamped, convertPoseWithCovariance, convertTwist
 from ros2_bag_extractor.type.nav_msgs import convertPath
-
-AVAILABLE_DATA_TYPE = ["Path", "MarkerArray", "PoseStamped", "PoseWithCovarianceStamped"]
+from ros2_bag_extractor.bag_parser.function_array import AVAILABLE_DATA_TYPE
 
 '''
 @brief Selecting data with user needs
@@ -26,18 +25,11 @@ class ObjectType():
     '''
     @data_type: what type of the topic is
     '''
-    if data_type == AVAILABLE_DATA_TYPE[0]:
-      return self._get_PathDiffList(self.org)
-    elif data_type == AVAILABLE_DATA_TYPE[1]:
-      return self._get_VisMarkerArrayPoseList(self.org)
-    elif data_type == AVAILABLE_DATA_TYPE[2]:
-      return self._get_PoseStampedList(self.org)
-    elif data_type == AVAILABLE_DATA_TYPE[3]:
-      return self._get_PoseWithCovarianceStamped(self.org)
-    else:
-      print(f"\x1b[31;20mno matching type for {data_type}...\x1b[0m")
-      print(f"available types are {AVAILABLE_DATA_TYPE}")
-
+    for k, v in AVAILABLE_DATA_TYPE.items():
+      if k == data_type:
+        func = getattr(self, v)
+        return func(self.org)
+    print(f"\x1b[31;20mno matching type for {data_type}...\x1b[0m")
     return
   
   def _get_PathDiffList(self, data : list):
@@ -72,6 +64,12 @@ class ObjectType():
       result.append(convertPoseWithCovariance(posestampcov,time))
     return result
 
+  def _get_Twist(self, data:list):
+    result = []
+    for time, posestamp in data:
+      result.append(convertTwist(posestamp, time))
+    return result
+  
   def _get_VisMarkerArrayPoseList(self, data : list):
     '''
     @data: list of (timestamp, visualization marker array)
